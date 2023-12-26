@@ -1,32 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strlcpy.c                                       :+:      :+:    :+:   */
+/*   forpipe.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abostano <abostano@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/26 15:30:10 by abostano          #+#    #+#             */
-/*   Updated: 2023/12/26 15:30:11 by abostano         ###   ########.fr       */
+/*   Created: 2023/12/26 15:29:52 by abostano          #+#    #+#             */
+/*   Updated: 2023/12/26 16:28:08 by abostano         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../pipex.h"
+#include "pipex.h"
 
-size_t	ft_strlcpy(char *dest, const char *src, size_t size)
+char	**ft_arguments(char *argv)
 {
-	size_t	i;
-	size_t	x;
+	char	**arguments;
 
-	x = ft_strlen(src);
-	i = 0;
-	if (size != 0)
-	{
-		while (src [i] != '\0' && i < size - 1)
-		{
-			dest[i] = src[i];
-			i++;
-		}
-		dest[i] = '\0';
-	}
-	return (x);
+	arguments = ft_split(argv, ' ');
+	return (arguments);
 }

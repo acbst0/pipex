@@ -1,6 +1,13 @@
-NAME		= pipex.a
+NAME		= pipex
 
-FILES	= 
+FILES	= pipex.c \
+			forpipe.c \
+			utils/ft_split.c \
+			utils/ft_strdup.c \
+			utils/ft_strjoin.c \
+			utils/ft_strlcpy.c \
+			utils/ft_strlen.c \
+			utils/ft_substr.c \
 
 CC	= gcc
 
@@ -9,8 +16,7 @@ CFLAGS	= -Wall -Werror -Wextra
 OFILES	= $(FILES:.c=.o)
 
 $(NAME):
-	$(CC) $(CFLAGS) -c $(FILES)
-	ar -r -c $(NAME) $(OFILES)
+	$(CC) $(CFLAGS) -c $(FILES) -o $(NAME)
 
 all: $(NAME)
 

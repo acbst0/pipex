@@ -6,7 +6,7 @@
 /*   By: abostano <abostano@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:27:25 by abostano          #+#    #+#             */
-/*   Updated: 2023/12/22 17:31:37 by abostano         ###   ########.fr       */
+/*   Updated: 2023/12/26 17:16:29 by abostano         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ char	*ft_findpath(char *command)
     char *tmp;
     int i;
 
-    paths = ft_split(getenv("PATH"), ':');
+	//getenv("PATH");
+    paths = ft_split("/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki", ':');
     if (!paths)
         return (NULL);
     i = 0;
@@ -34,41 +35,47 @@ char	*ft_findpath(char *command)
     }
     return (NULL);
 }
-
-char	**ft_args(char	**argv)
+//Child PID
+void	ft_childpid(int pipefd[], char *argv[], char *args[])
 {
-	int		i;
-	int		a;
-	char	**args;
+	close(pipefd[0]);
+	pipefd[0] = open(argv[1], O_RDONLY, 0777);
+	dup2(pipefd[0], 0);
+	close(pipefd[1]);
 
-	a = 0;
-	while (argv[a + 1] != "|")
-		a++;
-	//*args = malloc(sizeof(char) * a + 1);
-	args[a] = NULL;
-	i = 1;
-	while (argv[i] != "|")
-	{
-		args[i - 1] = argv[i];//ft_strdup(argv[i]);
-		i++;
-	}
-	return (args);
+	execve(ft_findpath(args[0]), args, NULL);
+}
+//Parent PID
+void	ft_parentpid(int pipefd[], char *argv[], char *args[])
+{
+	close(pipefd[1]);
+	pipefd[1] = open(argv[4], O_RDONLY | O_TRUNC , 0777);
+	dup2(pipefd[1], 0);
+	close(pipefd[0]);
+
+	execve(ft_findpath(args[0]), args, NULL);
 }
 
-int	main(int argc, char **argv)
+int	main(int argc, char *argv[], char *env[])
 {
-	//char		*args[] = {argv[1], argv[2], argv[3], argv[4]}
-	char	**args;
-	args = ft_args(argv);
+	pid_t		child_pid;
+	int			pipefd[2];
+	char		**args;
 
-	execve(ft_findpath(argv[1]), args, NULL);
-	int i = 0;
-	/*
-	while (args[i] != NULL)
+	pipe(pipefd);
+	child_pid = fork();
+	if (child_pid == 0)
 	{
-  	  free(args[i]);
- 	   i++;
+		args = ft_arguments(argv[2]);
+		ft_childpid(pipefd, argv, args);
 	}
-	free(args);
-	*/
+	else
+	{
+		free(args);
+
+		int	*status;
+
+		waitpid(child_pid, status, 0);
+		ft_parentpid(pipefd, argv, args);
+	}
 }
