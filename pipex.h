@@ -15,6 +15,7 @@
 
 # include <unistd.h>
 # include <stdlib.h>
+# include <stdio.h>//silinecek
 # include <fcntl.h>
 
 char	*ft_findpath(char *command);
@@ -24,6 +25,8 @@ size_t	ft_strlen(const char *a);
 size_t	ft_strlcpy(char *dest, const char *src, size_t size);
 char	*ft_strdup(const char *str);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
-char	**ft_arguments(char *argv);
+void	ft_free(char **freeable);
+void	ft_execute(char *argv, char **envp);
+void	error(void);
 
 #endif

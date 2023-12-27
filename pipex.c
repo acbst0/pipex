@@ -19,8 +19,8 @@ char	*ft_findpath(char *command)
     char *tmp;
     int i;
 
-	//getenv("PATH");
-    paths = ft_split("/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki", ':');
+	
+    paths = ft_split(getenv("PATH"), ':');
     if (!paths)
         return (NULL);
     i = 0;
@@ -36,46 +36,46 @@ char	*ft_findpath(char *command)
     return (NULL);
 }
 //Child PID
-void	ft_childpid(int pipefd[], char *argv[], char *args[])
+void	ft_childpid(int pipefd[], char *argv[], char *env[])
 {
-	close(pipefd[0]);
-	pipefd[0] = open(argv[1], O_RDONLY, 0777);
-	dup2(pipefd[0], 0);
-	close(pipefd[1]);
+	int	f1;
 
-	execve(ft_findpath(args[0]), args, NULL);
+	f1 = open(argv[1], O_RDONLY, 0777);
+	dup2(pipefd[1], STDOUT_FILENO);
+	dup2(f1, STDIN_FILENO);
+	close(pipefd[0]);
+	ft_execute(argv[2], env);
 }
 //Parent PID
-void	ft_parentpid(int pipefd[], char *argv[], char *args[])
+void	ft_parentpid(int pipefd[], char *argv[], char *env[])
 {
-	close(pipefd[1]);
-	pipefd[1] = open(argv[4], O_RDONLY | O_TRUNC , 0777);
-	dup2(pipefd[1], 0);
-	close(pipefd[0]);
+	int	f2;
 
-	execve(ft_findpath(args[0]), args, NULL);
+	f2 = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC , 0777);
+	if (f2 == -1)
+		return 0;
+	dup2(pipefd[0], STDIN_FILENO);
+	dup2(f2, STDOUT_FILENO);
+	close(pipefd[1]);
+	ft_execute(argv[3], env);
 }
 
 int	main(int argc, char *argv[], char *env[])
 {
 	pid_t		child_pid;
 	int			pipefd[2];
-	char		**args;
 
 	pipe(pipefd);
 	child_pid = fork();
 	if (child_pid == 0)
 	{
-		args = ft_arguments(argv[2]);
-		ft_childpid(pipefd, argv, args);
+		ft_childpid(pipefd, argv, env);
 	}
 	else
 	{
-		free(args);
-
-		int	*status;
-
-		waitpid(child_pid, status, 0);
-		ft_parentpid(pipefd, argv, args);
+		waitpid(child_pid, NULL, 0);
+		ft_parentpid(pipefd, argv, env);
 	}
+
+	write(1, "free\n", 2);
 }
