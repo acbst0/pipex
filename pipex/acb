@@ -1,0 +1,1 @@
+gcc pipex.c pipex.h utils/ft_split.c utils/ft_strdup.c utils/ft_strjoin.c utils/ft_strlcpy.c utils/ft_strlen.c utils/ft_substr.c -o pipe
