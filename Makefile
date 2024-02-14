@@ -9,6 +9,7 @@ FILES	= forpipe.c \
 			utils/ft_substr.c \
 			utils/ft_strnstr.c \
 
+OBJS	= $(FILES:.c=.o)
 
 CC	= gcc
 
@@ -18,16 +19,16 @@ MAIN	= pipex.c
 
 CFLAGS	= -Wall -Werror -Wextra
 
-${NAME}:
+${NAME}: ${OBJS}
 	@$(CC) ${MAIN} ${FILES} ${CFLAGS} -o ${NAME}
 
 all: $(NAME)
 
 clean:
-	${RM} $(PROG)
+	${RM} $(OBJS)
 
 fclean: clean
-	${RM} $(PROG)
+	${RM} $(NAME) 
 
 re: fclean all
 

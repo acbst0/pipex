@@ -6,7 +6,7 @@
 /*   By: abostano <abostano@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:27:25 by abostano          #+#    #+#             */
-/*   Updated: 2023/12/28 18:15:09 by abostano         ###   ########.fr       */
+/*   Updated: 2024/02/14 16:57:38 by abostano         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ void	ft_childpid(int pipefd[], char *argv[], char *env[])
 {
 	int	f1;
 
-	f1 = open(argv[1], O_RDONLY, 0777);
+	f1 = open(argv[1], O_RDONLY, 0644);
 	if (f1 == -1)
-		error();
+		error(ERR_INFILE);
 	dup2(pipefd[1], STDOUT_FILENO);
 	dup2(f1, STDIN_FILENO);
 	close(pipefd[0]);
@@ -52,9 +52,9 @@ void	ft_parentpid(int pipefd[], char *argv[], char *env[])
 {
 	int	f2;
 
-	f2 = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	f2 = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (f2 == -1)
-		error();
+		error(ERR_OUTFILE);
 	dup2(pipefd[0], STDIN_FILENO);
 	dup2(f2, STDOUT_FILENO);
 	close(pipefd[1]);
@@ -66,20 +66,22 @@ int	main(int argc, char *argv[], char *env[])
 	pid_t		child_pid;
 	int			pipefd[2];
 
+	if (is_there_path(env) == 0)
+		error(ERR_PATH);
 	if (argc == 5)
 	{
-		pipe(pipefd);
+		if (pipe(pipefd) == -1)
+			error(ERR_PIPE);
 		child_pid = fork();
+		if (child_pid == -1)
+			error(ERR_PRC);
 		if (child_pid == 0)
-		{
 			ft_childpid(pipefd, argv, env);
-		}
-		else
-		{
-			waitpid(child_pid, NULL, 0);
-			ft_parentpid(pipefd, argv, env);
-		}
+		ft_parentpid(pipefd, argv, env);
 	}
 	else
-		error();
+	{
+		msg(ERR_INPUT);
+	}
+	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: abostano <abostano@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/28 12:45:39 by abostano          #+#    #+#             */
-/*   Updated: 2023/12/28 18:12:11 by abostano         ###   ########.fr       */
+/*   Updated: 2024/02/14 16:56:16 by abostano         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,14 +51,29 @@ void	ft_execute(char *argv, char **envp)
 		while (cmd[++i])
 			free(cmd[i]);
 		free(cmd);
-		error();
+		error(ERR_CMD);
 	}
 	if (execve(path, cmd, envp) == -1)
-		error();
+		error(ERR_PRC);
+	free(path);
 }
 
-void	error(void)
+void	error(char *er)
 {
-	perror("Error");
-	exit(EXIT_FAILURE);
+	perror(er);
+	exit(1);
+}
+
+int	is_there_path(char *envp[])
+{
+	int	i;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strnstr(envp[i], "PATH", 4))
+			return (1);
+		i++;
+	}
+	return (0);
 }
